@@ -1,4 +1,4 @@
-name: StockMarketAnalysis_CI
+name: StockAnalysisAPI_CI
 
 on:
   push:
