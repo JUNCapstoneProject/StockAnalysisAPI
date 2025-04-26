@@ -2,7 +2,8 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 # bridge
-from Modules.FinReport.ReturnForecasting.Fama_French.Classifiy import ClassifiyCompanies
+from Modules.AIAnalysis.Papers.FinReport.ReturnForecasting.Fama_French_Factor.Get import GetFinanceIndex as Get
+from Modules.AIAnalysis.Papers.FinReport.ReturnForecasting.Fama_French_Factor.Classifiy import ClassifiyCompanies as Classifiy
 
 
 class CalculateFactor:
@@ -15,7 +16,7 @@ class CalculateFactor:
         :return: 해당 기업의 ROE 값
         """
         stock = yf.Ticker(ticker)
-        financials = stock.financials
+        financials = stock.financials  # 손익계산서
 
         # 날짜별로 필요한 컬럼(순이익 및 총수익) 추출
         normalized_income = financials.loc['Normalized Income']
@@ -26,7 +27,13 @@ class CalculateFactor:
         return roe
 
     @staticmethod
-    def cma_factor(stock_data, capex_data, quantile_ratio=0.3):
+    def rmt_factor(market_data):
+        rmt_factor = market_data['Adj Close'].pct_change().dropna()
+        rmt_factor.name = 'Market'
+        return rmt_factor
+
+    @staticmethod
+    def cma_factor(stock_data, quantile_ratio=0.3):
         """
         CMA (Conservative Minus Aggressive) 요인을 날짜별로 계산합니다.
         :param stock_data: 각 기업의 주식 데이터 (주식 수익률)
@@ -34,6 +41,8 @@ class CalculateFactor:
         :param quantile_ratio: 하위 30%를 기준으로 분할할 비율
         :return: 날짜별 CMA 요인
         """
+        tickers = stock_data.columns.get_level_values(1).unique().tolist()
+        capex_data = Get.capex_data(tickers)
         aggressive, conservative = ClassifiyCompanies.by_capex(capex_data, quantile_ratio)
 
         cma_factors = []
@@ -75,7 +84,7 @@ class CalculateFactor:
         return smb_factor
 
     @staticmethod
-    def hml_factor(stock_data, high_pb, low_pb):
+    def hml_factor(stock_data):
         """
         HML (High Minus Low) 요인을 날짜별로 계산합니다.
         :param stock_data: 각 기업의 주식 데이터 (주식 수익률)
@@ -83,6 +92,10 @@ class CalculateFactor:
         :param low_pb: P/B 비율 하위 30% 기업 리스트
         :return: 날짜별 HML 요인
         """
+        tickers = stock_data.columns.get_level_values(1).unique().tolist()
+        pb_data = Get.pb_ratio(tickers)
+        high_pb, low_pb = Classifiy.by_pb(pb_data)
+
         # 실제 존재하는 주식들만 필터링
         valid_high_pb = [ticker for ticker in high_pb
                          if ticker in stock_data.columns.get_level_values(1)]
@@ -109,13 +122,18 @@ class CalculateFactor:
         hml_factor_series = pd.Series(hml_factors, index=returns.groupby('Date').first().index.strftime('%Y-%m-%d'), name='HML')
         return hml_factor_series
 
-    @staticmethod
-    def rmw_factor(roe_values):
+    @classmethod
+    def rmw_factor(cls, stock_data):
         """
         RMW (Robust Minus Weak) 요인을 날짜별로 계산합니다.
         :param stock_data: 각 기업의 주식 데이터 (주식 수익률)
         :return: 날짜별 RMW 요인
         """
+        roe_values = pd.DataFrame(
+            {ticker: cls.roe(ticker) for ticker in stock_data.columns.get_level_values(1)}
+        ).ffill(axis=0).fillna(0)
+        roe_values.index = pd.to_datetime(roe_values.index)
+
         # 각 날짜마다 ROE 상위 50%와 하위 50%를 구하여 RMW 계산
         rmw_factors = []
         for date in roe_values.index:

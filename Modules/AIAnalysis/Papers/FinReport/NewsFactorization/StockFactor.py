@@ -3,11 +3,12 @@ import yfinance as yf
 import pandas as pd
 import pandas_ta as ta
 import numpy as np
+# bridge
 
 
-class CalculateIndex:
+class IntrinsicFactor:
     @classmethod
-    def create_factor(cls, stock_history, market_history, balance_sheet, shares_outstanding):
+    def create_factor(cls, stock_history, market_history) -> list:
         return [
             cls._bias(stock_history).iloc[-1],
             cls._vmacd(stock_history)[0].iloc[-1],
@@ -31,8 +32,9 @@ class CalculateIndex:
             cls._aroon(stock_history).iloc[-1],
             cls._cmo(stock_history).iloc[-1],
             cls._trading_turnover(stock_history).iloc[-1],
-            cls._market_ratio(stock_history, balance_sheet, shares_outstanding).iloc[-1],
-            cls._variation_of_share_turnover(stock_history)[-1]
+            # cls._market_ratio(stock_history, balance_sheet, shares_outstanding).iloc[-1],
+            cls._dbcd(stock_history),
+            cls._variation_of_share_turnover(stock_history).iloc[-1]
         ]
     
     @staticmethod
@@ -262,26 +264,53 @@ class CalculateIndex:
         trading_turnover = stock_history['Volume'] / market_cap
         return trading_turnover
 
+    # @staticmethod
+    # def _market_ratio(stock_history: pd.DataFrame, balance_sheet, shares_outstanding) -> pd.DataFrame:
+    #     # 'Total Liabilities' 계산 (단기 부채 + 장기 부채)
+    #     total_current_liabilities = balance_sheet.loc['Current Liabilities']
+    #     total_non_current_liabilities = balance_sheet.loc['Total Non Current Liabilities Net Minority Interest']
+    #     total_liabilities = total_current_liabilities + total_non_current_liabilities
+    #
+    #     # 'Book Value of Equity' 계산 (자산 - 부채)
+    #     total_assets = balance_sheet.loc['Total Assets']
+    #     book_value_of_equity = total_assets - total_liabilities
+    #
+    #     # 주식 데이터 (시가총액 계산)
+    #     market_price = stock_history['Close'].iloc[-1]  # 최신 종가
+    #
+    #     # 시가총액 계산
+    #     market_value_of_equity = market_price * shares_outstanding
+    #
+    #     # Book to Market 계산
+    #     book_to_market = book_value_of_equity / market_value_of_equity
+    #     return book_to_market
+
     @staticmethod
-    def _market_ratio(stock_history: pd.DataFrame, balance_sheet, shares_outstanding) -> pd.DataFrame:
-        # 'Total Liabilities' 계산 (단기 부채 + 장기 부채)
-        total_current_liabilities = balance_sheet.loc['Current Liabilities']
-        total_non_current_liabilities = balance_sheet.loc['Total Non Current Liabilities Net Minority Interest']
-        total_liabilities = total_current_liabilities + total_non_current_liabilities
+    def _dbcd(stock_history: pd.DataFrame, period=14, history_period="1mo"):
+        """
+        DBCD 지표 계산법:
+        - 매 거래일마다,
+            + Close > Open 이면 +1,
+            + Close < Open 이면 -1,
+            + 둘이 같으면 0을 할당.
+        - 그 후, 지정된 period(기본 14일) 동안의 이동평균을 계산.
 
-        # 'Book Value of Equity' 계산 (자산 - 부채)
-        total_assets = balance_sheet.loc['Total Assets']
-        book_value_of_equity = total_assets - total_liabilities
+        Parameters:
+            period (int): 이동평균 기간 (default 14)
+            history_period (str): yfinance에서 데이터를 가져올 기간 (예: "1mo")
+        """
+        # 각 거래일의 directional signal 계산: bullish (+1), bearish (-1), neutral (0)
+        stock_history['direction'] = stock_history.apply(
+            lambda row: 1 if row['Close'] > row['Open'] else (-1 if row['Close'] < row['Open'] else 0),
+            axis=1
+        )
 
-        # 주식 데이터 (시가총액 계산)
-        market_price = stock_history['Close'].iloc[-1]  # 최신 종가
+        # 지정된 기간 동안의 이동평균(rolling mean) 계산 => DBCD 지표
+        stock_history['DBCD'] = stock_history['direction'].rolling(window=period, min_periods=period).mean()
 
-        # 시가총액 계산
-        market_value_of_equity = market_price * shares_outstanding
-
-        # Book to Market 계산
-        book_to_market = book_value_of_equity / market_value_of_equity
-        return book_to_market
+        # 계산된 DBCD 값 중 마지막 값 반환
+        dbc_value = stock_history['DBCD'].iloc[-1]
+        return dbc_value
 
     @staticmethod
     def _variation_of_share_turnover(stock_history: pd.DataFrame, window=20) -> pd.Series:
