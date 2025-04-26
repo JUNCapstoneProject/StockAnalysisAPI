@@ -5,7 +5,7 @@ from Modules.Utils.Socket.Messages.request import requests_message, news_item
 file_path = os.path.abspath(__file__)
 directory = os.path.dirname(file_path)
 
-DATA_PATH = os.path.join(directory, 'news_stock_data.csv')
+DATA_PATH = os.path.join(directory, 'test_news_stock_data.csv')
 
 
 def get_message():

@@ -2,5 +2,6 @@
 .idea
 venv
 Modules/AIAnalysis/Models/*
-*/.env
+*.env
+*.pyc
 crawling_*.py

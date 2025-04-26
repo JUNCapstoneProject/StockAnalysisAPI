@@ -1,9 +1,4 @@
-from Modules.AIAnalysis.pipeline import pipeline
-# 임시 모듈
-from Datas.News.bbc import news, news_cn
-from Datas.Stock.Yfinance import GetYfinance
+from Modules.Utils.Socket.Server import TCPSocketServer
 
-data = {
-    'news_data': news_cn
-}
-pipeline('news', data)
+server = TCPSocketServer()
+server.run()

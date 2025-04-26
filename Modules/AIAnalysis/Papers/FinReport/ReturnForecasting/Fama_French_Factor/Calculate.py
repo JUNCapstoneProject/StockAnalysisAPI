@@ -43,7 +43,7 @@ class CalculateFactor:
         """
         tickers = stock_data.columns.get_level_values(1).unique().tolist()
         capex_data = Get.capex_data(tickers)
-        aggressive, conservative = ClassifiyCompanies.by_capex(capex_data, quantile_ratio)
+        aggressive, conservative = Classifiy.by_capex(capex_data, quantile_ratio)
 
         cma_factors = []
 
