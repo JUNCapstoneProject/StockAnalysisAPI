@@ -1,5 +1,6 @@
 .gitignore
 .idea
 venv
-Datas
-Models
+Modules/AIAnalysis/Models/*
+*/.env
+crawling_*.py
