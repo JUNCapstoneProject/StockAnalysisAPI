@@ -1,5 +1,4 @@
 arch==7.2.0
-azure_storage==0.37.0
 beautifulsoup4==4.13.4
 cloudpickle==2.2.1
 hanlp==2.1.1
@@ -11,7 +10,7 @@ pandas_ta==0.3.14b0
 PyMySQL==1.1.1
 python-dotenv==1.1.0
 Requests==2.32.3
-scikit_learn==1.4.2
+scikit_learn==1.6.1
 tensorflow==2.19.0
 tensorflow_intel==2.15.0
 torch==2.6.0+cu126
