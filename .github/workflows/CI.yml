@@ -37,6 +37,6 @@ jobs:
           # Github 에디터는 한 줄에 127자까지만 보임
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      - name : Test with pytest
+      - name : Test with unittest
         run: |
-          python -m pytest tests
+          python -m unittest tests
