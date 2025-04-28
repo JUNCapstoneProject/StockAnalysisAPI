@@ -1,0 +1,7 @@
+.gitignore
+.idea
+venv
+Modules/AIAnalysis/Models/*
+*.env
+*.pyc
+crawling_*.py
