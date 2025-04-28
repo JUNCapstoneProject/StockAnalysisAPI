@@ -35,7 +35,7 @@ jobs:
           script: |
             # Docker로 서비스 빌드 및 실행
             cd ~/dockers/StockAnalysisAPI/service
-            docker build -t docker:StockAnalysisAPI_service .
             docker stop StockAnalysisAPI_service || true
             docker rm StockAnalysisAPI_service || true
+            docker build -t docker:StockAnalysisAPI_service .
             docker run -d --name StockAnalysisAPI_service docker:StockAnalysisAPI_service
