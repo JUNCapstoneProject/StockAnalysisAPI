@@ -38,7 +38,7 @@ jobs:
             docker stop StockAnalysisAPI_service || true
             docker rm StockAnalysisAPI_service || true
             docker build -t docker:StockAnalysisAPI_service .
-            docker run -d --name StockAnalysisAPI_service docker:StockAnalysisAPI_service
+            docker run -d -p 4006:4006 --name StockAnalysisAPI_service docker:StockAnalysisAPI_service
             # 호스트의 불필요한 파일(도커 외부) 삭제
             # find . ! -name 'Dockerfile' ! -name '.' -exec rm -rf {} +
             
