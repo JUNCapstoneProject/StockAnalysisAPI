@@ -2,5 +2,5 @@
 
 class SocketInterface:
     SOCKET_BYTE = 4096
-    HOST = '127.0.0.1'
+    HOST = '0.0.0.0'
     SERVER_PORT = 4006
