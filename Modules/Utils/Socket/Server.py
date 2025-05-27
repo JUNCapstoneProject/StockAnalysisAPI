@@ -2,6 +2,7 @@ import socket
 import threading
 import queue
 import copy
+import zlib
 # Bridge
 from Modules.Utils.Socket.Interface import SocketInterface
 from Modules.Utils.Socket.Scheduler import FCFS
@@ -46,10 +47,14 @@ class TCPSocketServer(SocketInterface):
                 if not data:  # 클라이언트 연결 종료
                     break
 
-                message = data.decode()
+                message = zlib.decompress(data).decode('utf-8')
+                print('put message')
                 self.message_queue.put((message, client_socket))
 
             except ConnectionResetError:
+                break
+            except zlib.error as e:
+                print(f"압축 해제 오류: {e}")
                 break
 
         client_socket.close()
@@ -87,4 +92,4 @@ class TCPSocketServer(SocketInterface):
         # 클라이언트 연결 수락
         while True:
             client_socket, addr = server_socket.accept()
-            threading.Thread(target=self.receive_client, args=(client_socket, addr), daemon=True).start()
+            threading.Thread(target=self.receive_client, args=(client_socket,), daemon=True).start()
