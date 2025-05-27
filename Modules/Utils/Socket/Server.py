@@ -3,6 +3,7 @@ import threading
 import queue
 import copy
 import zlib
+import json
 # Bridge
 from Modules.Utils.Socket.Interface import SocketInterface
 from Modules.Utils.Socket.Scheduler import FCFS
@@ -65,18 +66,20 @@ class TCPSocketServer(SocketInterface):
         """
         while True:
             message, client_socket = FCFS(self.message_queue)
+            message = json.loads(message)
             response = copy.deepcopy(response_message)  # 원본 메세지(딕셔너리)의 수정 방지
-            
+
             request_url = message['header']['Request URL']
             path = request_url.split("/analysis")[1]
             item = message['body']['item']
             
             output = self.handle_request(path, item)
-            response['response_id'] = output['pipeline_id']
+            response['response_id'] = output.get('pipeline_id', 'None')
             response['status_code'] = output['status_code']
-            response['message'] = output['message']
-            response['item'] = output['item']
+            response['message'] = output.get('message', 'None')
+            response['item'] = output.get('item', 'None')
 
+            response = json.dumps(response)
             client_socket.sendall(response.encode())
             self.message_queue.task_done()
 
