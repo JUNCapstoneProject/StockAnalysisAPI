@@ -21,6 +21,12 @@ class Output:
             'result': data
         }
 
+    def get(self, key, replace_value):
+        if key in self.data:
+            return self.data[key]
+        else:
+            return replace_value
+
     def __getitem__(self, key):
         if key in self.data:
             return self.data[key]
