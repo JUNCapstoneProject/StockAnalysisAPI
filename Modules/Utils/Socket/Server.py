@@ -74,6 +74,7 @@ class TCPSocketServer(SocketInterface):
             item = message['body']['item']
             
             output = self.handle_request(path, item)
+            # handle_request 과정에서 예외가 발생하면 pipeline_id가 없음
             response['response_id'] = output.get('pipeline_id', 'None')
             response['status_code'] = output['status_code']
             response['message'] = output.get('message', 'None')
