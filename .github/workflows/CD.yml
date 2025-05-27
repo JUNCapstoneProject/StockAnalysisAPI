@@ -22,6 +22,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PWD }}
           port: ${{ secrets.SERVER_PORT }}
+          ssh_option: "-o StrictHostKeyChecking=no"
           source: "./*"
           target: "/home/stockmarketanalysis/dockers/StockAnalysisAPI/service"
 
@@ -32,6 +33,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PWD }}
           port: ${{ secrets.SERVER_PORT }}
+          ssh_option: "-o StrictHostKeyChecking=no"
           script: |
             # Docker로 서비스 빌드 및 실행
             cd ~/dockers/StockAnalysisAPI/service
