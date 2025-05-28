@@ -7,7 +7,7 @@ class ENSummarizer:
     MODEL = 'facebook/bart-large-cnn'
 
     def __init__(self):
-        self.summarizer = pipeline('summarization', model=self.MODEL, device=0)
+        self.summarizer = pipeline('summarization', model=self.MODEL)
 
     def summarize(self, text):
         outs = []  # outs 리스트를 while 루프 외부에서 선언
