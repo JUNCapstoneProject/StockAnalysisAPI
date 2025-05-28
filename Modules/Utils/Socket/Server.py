@@ -10,12 +10,14 @@ from Modules.Utils.Socket.Scheduler import FCFS
 from Modules.Utils.Socket.Web.Decorator import ROUTE_TABLE
 from Modules.Utils.Socket.Messages.response import response_message
 from API.Controller.Analysis.Finance import FinanceAnalysisController
+from API.Controller.Analysis.News import NewsAnalysisController
 
 
 class TCPSocketServer(SocketInterface):
     def __init__(self):
         self.message_queue = queue.Queue()
         FinanceAnalysisController()  # 등록
+        NewsAnalysisController()  # 등록
 
     @staticmethod
     def handle_request(path, item: dict) -> dict:
@@ -23,6 +25,7 @@ class TCPSocketServer(SocketInterface):
         item은 data를 갖고있는 딕셔너리
         """
         route = ROUTE_TABLE.get(path)
+        print('ROUTE_TABLE', ROUTE_TABLE)
         if route:
             cls, method_name = route
             instance = cls()  # 클래스 인스턴스 생성
