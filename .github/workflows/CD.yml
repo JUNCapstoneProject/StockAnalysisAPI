@@ -11,6 +11,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-22.04
+    timeout-minutes: 60
     steps:
       - name: 'Checkout Github Repository'
         uses: actions/checkout@v2
@@ -39,7 +40,7 @@ jobs:
             cd ~/dockers/StockAnalysisAPI/service
             docker stop StockAnalysisAPI_service || true
             docker rm StockAnalysisAPI_service || true
-            docker build -t docker:StockAnalysisAPI_service .
+            docker build --cache-from docker:StockAnalysisAPI_service -t docker:StockAnalysisAPI_service .
             docker run -d --name StockAnalysisAPI_service docker:StockAnalysisAPI_service
             # 도커 네트워크 연결
             docker network connect socket_net StockAnalysisAPI_service
