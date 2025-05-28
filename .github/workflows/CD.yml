@@ -39,3 +39,5 @@ jobs:
             docker rm StockAnalysisAPI_service || true
             docker build -t docker:StockAnalysisAPI_service .
             docker run -d --name StockAnalysisAPI_service docker:StockAnalysisAPI_service
+            # 도커 네트워크 연결
+            docker network connect socket_net StockAnalysisAPI_service
