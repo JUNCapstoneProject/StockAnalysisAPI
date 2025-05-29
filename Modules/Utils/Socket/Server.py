@@ -3,6 +3,7 @@ import threading
 import queue
 import copy
 import zlib
+import base64
 import json
 # Bridge
 from Modules.Utils.Socket.Interface import SocketInterface
@@ -51,6 +52,7 @@ class TCPSocketServer(SocketInterface):
                 if not data:  # 클라이언트 연결 종료
                     break
 
+                data = base64.b64decode(data.encode('utf-8'))
                 message = zlib.decompress(data).decode('utf-8')
                 print('put message')
                 self.message_queue.put((message, client_socket))

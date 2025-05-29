@@ -2,6 +2,7 @@ import socket
 import copy
 import json
 import zlib
+import base64
 # Bridge
 from Modules.Utils.Socket.Interface import SocketInterface
 from Modules.Utils.Socket.Messages.request import requests_message
@@ -28,6 +29,7 @@ class SocketClient(SocketInterface):
         client_socket.connect((addr, port))
         try:
             datagram = zlib.compress(json.dumps(self.requests_message).encode())  # json 직렬화 -> 인코딩 -> 압축
+            datagram = base64.b64encode(datagram).decode('utf-8')
             print('datagram len :', len(datagram))
             client_socket.sendall(datagram)
             data = client_socket.recv(1024)
