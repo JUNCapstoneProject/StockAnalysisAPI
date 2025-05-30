@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from Modules.Utils.Socket.Messages.request import requests_message, news_item
+from API.Socket.Messages.request import requests_message, news_item
 
 file_path = os.path.abspath(__file__)
 directory = os.path.dirname(file_path)

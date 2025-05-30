@@ -1,5 +1,6 @@
 import json
 import unittest
+import numpy as np
 # bridge
 from Modules.Utils.Interfaces.Pipeline import Input
 from Modules.Utils.Summarizer.EN import ENSummarizer
@@ -12,9 +13,11 @@ from Modules.AIAnalysis.Papers.FinReport.NewsFactorization.Tokenizer import News
 from Modules.AIAnalysis.Papers.FinReport.NewsFactorization.SRL import TokenSRL
 from Modules.AIAnalysis.Papers.FinReport.NewsFactorization.StockFactor import IntrinsicFactor
 from Modules.AIAnalysis.Papers.FinReport.NewsFactorization.Classifier import SentimentClassifier
+from Modules.AIAnalysis.Papers.FinReport.NewsFactorization.SentimentClassifier.Dataset import create_data_loader
 # TEST
 from tests.DummyData.News.Yahoo import *
-import mlflow.tensorflow
+from sklearn.metrics import confusion_matrix, classification_report
+import ast
 
 
 @adapter
@@ -22,64 +25,56 @@ def dummy_adapter(self, data):
     return data
 
 
+def string_to_tuples_list(text):
+    if text is np.nan or text == '[]':
+        return []
+    text = ''.join(text.split('], ['))
+    tmp = eval(text.strip('[').strip(']'))
+    if not isinstance(tmp[0], tuple):
+        return [tmp]
+    return list(tmp)
+
+
 class NewsTest(unittest.TestCase):
     pass
     # Success
     # def test_message(self):
-    #     self.assertTrue(get_item())
+    #     # self.assertTrue(get_item())
     #     self.assertTrue(get_message())
     #     print('success test_message')
 
+    # Success
     # def test_load(self):
     #     ml_client = CLI.ml_client()
     #     mlflow.torch.load_model()
 
-    # fail
-    # def test_sentiment_classifier(self):
-    #     self.en_summarizer = ENSummarizer()
-    #     self.en_translater = ENTranslater()
-    #     self.srl = TokenSRL()
-    #     self.classifier = SentimentClassifier(self.srl.tokenizer)  # SRL과 동일한 tokenizer 사용
-    #
-    #     test_message = get_message()
-    #     item = test_message['body']['item']
-    #     data = dummy_adapter('dummy', item['data'])
-    #     news_en = data['news_data']
-    #     news_summarized = self.en_summarizer.summarize(news_en)
-    #     self.assertTrue(news_summarized)
-    #     news_cn = self.en_translater.to_cn(news_summarized)
-    #     self.assertTrue(news_cn)
-    #     news_factors = self.srl.labeling(news_cn)
-    #     # self.assertFalse(news_factors.empty)  # 현재 df가 아니라 dict 사용중
-    #     # create stock factor
-    #     stock_factors = IntrinsicFactor.create_factor(data['stock_history'],
-    #                                                   data['market_history'])
-    #     self.assertTrue(len(stock_factors) > 0)
-    #     # create sentiment factor
-    #     input_data = {
-    #         'text_a': [news_cn],
-    #         'stock_factors': [stock_factors],
-    #         'verb_mask': [news_factors['verb_mask'][0].tolist()],
-    #         'A0_mask': [news_factors['A0_mask'][0].tolist()],
-    #         'A1_mask': [news_factors['A1_mask'][0].tolist()],
-    #         'AV_num': [news_factors['AV_num'][0].tolist()]
-    #     }
-    #     input_df = pd.DataFrame(input_data)
-    #     sentiment_factor = self.classifier.classification(input_df)
-    #     print(sentiment_factor)
-    #     self.assertTrue(sentiment_factor)
-
     # Success
-    # def test_socket(self):
-    #     test_message = get_message()
-    #     item = test_message['body']['item']
-    #     data = item['data']
-    #     data = dummy_adapter('dummy', data)
+    # memoize=True 성공
+    def test_sentiment_classifier(self):
+        test_message = get_message()
+        item = test_message['body']['item']
+        data = item['data']
+
+        news_input = NewsFactorInput(memoize=False)
+        sentiment_factor = news_input(data)
+        print(sentiment_factor)
+        self.assertTrue(sentiment_factor)
+
+    # def test_model(self):
+    #     class_names = ['negative', 'neutral', 'positive']
     #
-    #     news_input = NewsFactorInput()
-    #     sentiment_factor = news_input(data)
-    #     print(sentiment_factor)
-    #     self.assertTrue(sentiment_factor)
+    #     df_test = pd.read_csv('DummyData/Finance/test.csv', sep='\t')
+    #     for col in ['verb', 'A0', 'A1']:
+    #         df_test[col] = df_test[col].apply(string_to_tuples_list)
+    #
+    #     for col in ['stock_factors', 'verbA0A1']:
+    #         df_test[col] = df_test[col].apply(ast.literal_eval)
+    #
+    #     df_test = df_test.reset_index(drop=True)
+    #     tokenizer = TokenSRL().tokenizer
+    #     classifier = SentimentClassifier(tokenizer)
+    #     y_review_texts, y_pred, y_pred_probs, y_test = classifier.test_classification(df_test)
+    #     print(classification_report(y_test, y_pred, target_names=class_names, digits=4))
 
 
 if __name__ == "__main__":

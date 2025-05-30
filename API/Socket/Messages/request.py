@@ -9,8 +9,6 @@ requests_message = {
         "Authorization": "Bearer",
     },
     "body": {
-        "client_id": None,
-        "client_secret": None,
         "item": {}  # 아래 item중 한개
     }
 }
@@ -20,7 +18,8 @@ news_item = {
     "data": {
         "news_data": None,
         "stock_history": {
-            'Date': [],
+            'stock': [],
+            'Date': [],  # yyyy-mm-dd 형식
             'Open': [],
             'Close': [],
             'Adj Close': [],
@@ -30,6 +29,7 @@ news_item = {
             'Market Cap': [],
         },
         "market_history": {
+            'm_Symbol': [],
             'Date': [],
             'Open': [],
             'Close': [],

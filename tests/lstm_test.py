@@ -1,4 +1,8 @@
+import numpy as np
 import unittest
+
+import pandas as pd
+
 # LSTM
 from Modules.AIAnalysis.Papers.LSTM.Adapter import adapter
 from Modules.AIAnalysis.Papers.LSTM.PreProcessing.Chart import ChartPreProcessing as CPP
@@ -8,6 +12,27 @@ from Modules.AIAnalysis.Papers.LSTM.Lstm import FinanceLSTM
 from Modules.AIAnalysis.Papers.LSTM import FinanceInput
 # TEST
 from tests.DummyData.Finance.Chart import *
+from Statistics import Statistics
+
+
+def simulate(test_data: pd.DataFrame, predictions: np.ndarray):
+    rets = pd.DataFrame([], columns=['Long', 'Short'])
+    k = 10
+
+    test_data = test_data.copy()
+    test_data['pred'] = predictions
+
+    for day in sorted(test_data['date'].unique()):
+        daily_data = test_data[test_data['date'] == day]
+        sorted_data = daily_data.sort_values('pred', ascending=False)
+
+        long_returns = sorted_data['CloseR0'].iloc[:k]
+        short_returns = -sorted_data['CloseR0'].iloc[-k:]
+
+        rets.loc[day] = [long_returns.mean(), short_returns.mean()]
+
+    print('Result :', rets.mean())
+    return rets
 
 
 class LstmTest(unittest.TestCase):
@@ -54,6 +79,20 @@ class LstmTest(unittest.TestCase):
     #     self.assertTrue(pipeline_id)
     #     prediction = finance_output['result']
     #     self.assertTrue(prediction)
+
+    def test_performance(self):
+        test_df = pd.read_csv('./DummyData/Finance/test.csv', index_col=0)
+        # print(test_df.columns)
+        input_df = test_df.drop(columns=['Unnamed: 0', 'Date'])  # , 'date'
+
+        lstm = FinanceLSTM()
+        predictions = lstm.prediction(input_df)
+        returns = simulate(test_df, predictions)
+        print('\nAverage returns prior to transaction charges')
+        result_long = Statistics(returns['Long'])
+        result_long.report()
+        result_short = Statistics(returns['Short'])
+        result_short.report()
 
 
 if __name__ == "__main__":

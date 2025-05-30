@@ -3,14 +3,16 @@ import copy
 import json
 import zlib
 import base64
+import zstandard as zstd
 # Bridge
-from Modules.Utils.Socket.Interface import SocketInterface
-from Modules.Utils.Socket.Messages.request import requests_message
+from API.Socket.Interface import SocketInterface
+from API.Socket.Messages.request import requests_message
 
 
 class SocketClient(SocketInterface):
     def __init__(self):
         self.requests_message = copy.deepcopy(requests_message)
+        self.cctx = zstd.ZstdCompressor(level=9)
 
     # FIXME : 구현하기
     @staticmethod
@@ -28,9 +30,10 @@ class SocketClient(SocketInterface):
         addr, port = self.resolve_addr()
         client_socket.connect((addr, port))
         try:
-            datagram = zlib.compress(json.dumps(self.requests_message).encode())  # json 직렬화 -> 인코딩 -> 압축
-            datagram = base64.b64encode(datagram).decode('utf-8')
-            print('datagram len :', len(datagram))
+            # datagram = zlib.compress(json.dumps(self.requests_message).encode())  # json 직렬화 -> 인코딩 -> 압축
+            datagram = self.cctx.compress(json.dumps(self.requests_message).encode())  # json 직렬화 -> 인코딩 -> 압축
+            datagram = base64.b64encode(datagram) + b"<END>"
+            print("request to SentimentClassifier_AI")
             client_socket.sendall(datagram)
             data = client_socket.recv(1024)
             message = json.loads(data.decode())

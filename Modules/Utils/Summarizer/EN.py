@@ -1,6 +1,5 @@
 from torch.utils.data import Dataset
 from transformers import pipeline
-from datetime import datetime
 
 
 class ENSummarizer:
