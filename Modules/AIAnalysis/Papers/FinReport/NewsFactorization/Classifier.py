@@ -16,13 +16,13 @@ directory = os.path.dirname(file_path)
 
 class SentimentClassifier:
     ENDPOINTS_URL = ''
-    CLASSIFIER_DIR = os.path.join(directory, '../../../../Models/SentimentClassifier_/data/model.pth')
+    CLASSIFIER_DIR = os.path.join(directory, '../../../../AIAnalysis/Models/SentimentClassifier_/data/model.pth')
     CLASSIFIER_DIR = os.path.normpath(CLASSIFIER_DIR)
 
     def __init__(self, tokenizer):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.tokenizer = tokenizer
-        self.model = Model(len(class_names), self.device)
+        # self.model = Model(len(class_names), self.device)
 
     def classification(self, df: pd.DataFrame):
         data_loader = create_data_loader(df, self.tokenizer, max_len, BATCH_SIZE)
@@ -31,8 +31,8 @@ class SentimentClassifier:
         return y_pred
 
     def _get_predictions(self, data_loader):
-        self.model.load_state_dict(torch.load(self.CLASSIFIER_DIR, weights_only=False))
-        self.model = self.model.to(self.device)
+        self.model = torch.load(self.CLASSIFIER_DIR, weights_only=False)
+        self.model.to(self.device)
         self.model.eval()
 
         review_texts = []

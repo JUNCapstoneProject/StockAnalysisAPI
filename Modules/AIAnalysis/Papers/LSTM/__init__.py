@@ -29,7 +29,7 @@ class FinanceInput(Input):
         실제 반환은 memoization 데코레이터가 Output 객체를 반환함
         """
         if self.memoize:
-            return
+            return  # @memoization에서 값을 채워넣음
         else:
             # 전처리
             chart = CPP.process(data['chart'])

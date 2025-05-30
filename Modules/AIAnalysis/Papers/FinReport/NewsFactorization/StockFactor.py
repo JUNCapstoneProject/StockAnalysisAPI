@@ -4,6 +4,7 @@ import pandas as pd
 import pandas_ta as ta
 import numpy as np
 # bridge
+from Utils.Error.UserError import UserInputError
 
 
 class IntrinsicFactor:

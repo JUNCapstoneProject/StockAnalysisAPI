@@ -1,4 +1,4 @@
-from Modules.Utils.Socket.Server import TCPSocketServer
+from API.Socket.Server import TCPSocketServer
 
 server = TCPSocketServer()
 server.run()
