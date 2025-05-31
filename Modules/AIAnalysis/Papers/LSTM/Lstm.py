@@ -20,10 +20,10 @@ class FinanceLSTM:
         merged_df.drop(columns=['date'], inplace=True)
         merged_df = merged_df.drop(columns=['IntraR-future', 'label']).values.astype(np.float32)
         merged_df = self.reshaper(merged_df)
-        prediction = self.model.predict(merged_df)  # [-1]  # 성능 테스트 할 땐 [-1] 주석처리 해야 함
-        return prediction[:, 0]  # 성능 테스트 할 땐 이걸 return해야 함
-        # prediction_class = list(prediction).index(max(prediction))
-        # return prediction_class
+        prediction = self.model.predict(merged_df)[-1]  # 성능 테스트 할 땐 [-1] 주석처리 해야 함
+        # return prediction[:, 0]  # 성능 테스트 할 땐 이걸 return해야 함
+        prediction_class = list(prediction).index(max(prediction))
+        return prediction_class
 
     @staticmethod
     def reshaper(arr):
