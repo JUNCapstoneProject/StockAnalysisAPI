@@ -57,6 +57,7 @@ class TCPSocketServer(SocketInterface):
                 # message = zlib.decompress(decoded).decode('utf-8')
                 message = self.dctx.decompress(decoded).decode('utf-8')
                 self.message_queue.put((message, client_socket))
+                print(f"put message, 현재 메세지 갯수 {self.message_queue.qsize()}")
             except ConnectionResetError:
                 break
             # except zlib.error as e:
@@ -111,10 +112,12 @@ class TCPSocketServer(SocketInterface):
                     'result': output.get('result', 'None')
                 }
             finally:
-                print('response', response)
+                print(f'response message:'
+                      f'\n : {response}')
                 response = json.dumps(response)
                 client_socket.sendall(response.encode())
                 self.message_queue.task_done()
+                print(f"process message, 현재 메세지 갯수 {self.message_queue.qsize()}")
 
     def run(self):
         # 서버 소켓 설정
