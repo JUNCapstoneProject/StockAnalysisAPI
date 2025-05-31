@@ -36,6 +36,7 @@ class SocketClient(SocketInterface):
             print("request to SentimentClassifier_AI")
             client_socket.sendall(datagram)
             data = client_socket.recv(1024)
+            print("receive from SentimentClassifier_AI")
             message = json.loads(data.decode())
             return message
 
