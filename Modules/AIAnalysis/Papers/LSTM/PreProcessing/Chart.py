@@ -6,8 +6,8 @@ import numpy as np
 class ChartPreProcessing:
     @classmethod
     def process(cls, chart: pd.DataFrame) -> pd.DataFrame:
-        if len(chart["timestamp"]) < 365:  # 최소 1년치 데이터 필요함
-            raise ValueError('최소 1년치 이상의 데이터가 필요합니다')
+        if len(chart["timestamp"]) < 260:  # 최소 1년치 데이터 필요함
+            raise ValueError('최소 1년치 이상(260개)의 데이터가 필요합니다')
         else:
             label = cls.create_label(chart['o'], chart['c'])
             pre_processed_data = cls.create_stock_data(chart, label)

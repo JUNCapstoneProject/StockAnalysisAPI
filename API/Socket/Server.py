@@ -47,25 +47,17 @@ class TCPSocketServer(SocketInterface):
         소켓이 수립되면 해당 스레드가 생성되며,
         연결이 종료되면 소켓을 종료하며 스레드 해제
         """
-        while True:
-            try:
-                data = self.recv_until(client_socket)
-                if not data:  # 클라이언트 연결 종료
-                    break
-
-                decoded = base64.b64decode(data)
-                # message = zlib.decompress(decoded).decode('utf-8')
-                message = self.dctx.decompress(decoded).decode('utf-8')
-                self.message_queue.put((message, client_socket))
-                print(f"put message, 현재 메세지 갯수 {self.message_queue.qsize()}")
-            except ConnectionResetError:
-                break
-            # except zlib.error as e:
-            #     print(f"압축 해제 오류: {e}")
-            except Exception as e:
-                print(f"put_message()에서 에러 발생 : {e}")
-
-        client_socket.close()
+        try:
+            data = self.recv_until(client_socket)
+            decoded = base64.b64decode(data)
+            # message = zlib.decompress(decoded).decode('utf-8')
+            message = self.dctx.decompress(decoded).decode('utf-8')
+            self.message_queue.put((message, client_socket))
+            print(f"put message, 현재 메세지 갯수 {self.message_queue.qsize()}")
+        # except zlib.error as e:
+        #     print(f"압축 해제 오류: {e}")
+        except Exception as e:
+            print(f"put_message()에서 에러 발생 : {e}")
 
     def recv_until(self, sock, delimiter=b"<END>"):
         buffer = b""
@@ -86,10 +78,13 @@ class TCPSocketServer(SocketInterface):
         """
         while True:
             message, client_socket = FCFS(self.message_queue)
+            print(f"get message, 현재 메세지 갯수 {self.message_queue.qsize()}")
             message = json.loads(message)
             response = copy.deepcopy(response_message)  # 원본 메세지(딕셔너리)의 수정 방지
             try:
                 request_url = message['header']['Request URL']
+                print('request_url :', request_url)
+                print('message :', message)
                 path = request_url.split("/analysis")[1]
                 item = message['body']['item']
                 event_type = item['event_type']
@@ -112,12 +107,16 @@ class TCPSocketServer(SocketInterface):
                     'result': output.get('result', 'None')
                 }
             finally:
-                print(f'response message:'
-                      f'\n : {response}')
                 response = json.dumps(response)
-                client_socket.sendall(response.encode())
-                self.message_queue.task_done()
-                print(f"process message, 현재 메세지 갯수 {self.message_queue.qsize()}")
+                print(f'response message'
+                      f'\n: {response}')
+                try:
+                    client_socket.sendall(response.encode())
+                except OSError:  # 닫힌 소켓일 경우 무시
+                    pass
+                finally:
+                    client_socket.close()
+                    self.message_queue.task_done()
 
     def run(self):
         # 서버 소켓 설정
