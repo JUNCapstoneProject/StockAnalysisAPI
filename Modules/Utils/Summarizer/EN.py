@@ -19,7 +19,7 @@ class ENSummarizer:
             text = '\n'.join(outs)  # 새로 생성된 'outs'로 다시 text를 업데이트
 
         # 최종 요약 텍스트 생성
-        summarized_text = self.summarizer('\n'.join(outs), max_length=128, min_length=32)[0]['summary_text']
+        summarized_text = self.summarizer('\n'.join(outs), max_length=128, min_length=16)[0]['summary_text']
         return summarized_text
 
     @staticmethod
