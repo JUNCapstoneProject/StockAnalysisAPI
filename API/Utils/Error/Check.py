@@ -47,4 +47,6 @@ def data_check(path, data: dict) -> bool:
         item_checker = _get_item_checker(path)
         return item_checker(data)
     else:
+        print('있어야 할 데이터 :', _extract_keys(origin_data) - _extract_keys(data))
+        print('있어선 안 될 데이터 :', _extract_keys(data) - _extract_keys(origin_data))
         raise UserInputError("메세지 구조가 올바르지 않음")

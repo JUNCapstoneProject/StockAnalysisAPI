@@ -154,7 +154,7 @@ class IntrinsicFactor:
 
     @staticmethod
     def _cci(stock_history: pd.DataFrame) -> pd.DataFrame:
-        cci = ta.cci(stock_history['High'], stock_history['Low'], stock_history['Close'], length=30)
+        cci = ta.cci(stock_history['High'], stock_history['Low'], stock_history['Close'], length=15)
         return cci
 
     # IMI 계산 (14일 기준)
